@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Bangladesh Loan Analyzer</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#e0e7ff 0%,#f0f4ff 100%);min-height:100vh;padding:20px}
+  .container{max-width:600px;margin:0 auto}
+  h1{text-align:center;color:#1e3a8a;font-size:1.6rem;margin-bottom:4px}
+  .subtitle{text-align:center;color:#6b7280;font-size:.85rem;margin-bottom:20px}
+  .tab-bar{display:flex;border:1.5px solid #bfdbfe;border-radius:10px;overflow:hidden;background:#fff;margin-bottom:18px}
+  .tab{flex:1;padding:10px;text-align:center;font-size:.9rem;font-weight:600;cursor:pointer;color:#4b5563;transition:.2s}
+  .tab.active{background:#2563eb;color:#fff}
+  .card{background:#fff;border-radius:14px;padding:20px;margin-bottom:16px;border:2px solid #e5e7eb}
+  .card.loan-b{border-color:#d8b4fe}
+  .card-title{font-weight:700;color:#374151;margin-bottom:14px;font-size:.95rem}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:.82rem;font-weight:600;color:#374151;margin-bottom:3px}
+  .field .hint{font-size:.75rem;color:#9ca3af;margin-bottom:4px}
+  .field input{width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:.9rem;outline:none;transition:.2s}
+  .field input:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+  .btn{width:100%;background:#2563eb;color:#fff;border:none;border-radius:12px;padding:14px;font-size:1rem;font-weight:700;cursor:pointer;transition:.2s;margin-bottom:22px}
+  .btn:hover{background:#1d4ed8}
+  .error{color:#dc2626;font-size:.85rem;margin-bottom:10px;text-align:center}
+  /* Report */
+  .report{background:#fff;border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 2px 12px rgba(0,0,0,.07)}
+  .report-title{font-weight:700;color:#1d4ed8;margin-bottom:14px;font-size:.95rem}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+  .stat{background:#f9fafb;border-radius:10px;padding:12px;text-align:center}
+  .stat .slabel{font-size:.72rem;color:#6b7280;margin-bottom:4px}
+  .stat .sval{font-weight:700;color:#1f2937;font-size:.95rem}
+  .afford{border-radius:10px;border:1.5px solid;padding:12px;margin-bottom:14px}
+  .afford-row{display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:4px}
+  .afford-row span:last-child{font-weight:700}
+  .section-title{font-size:.85rem;font-weight:700;color:#374151;margin-bottom:8px}
+  .insights li{font-size:.83rem;color:#374151;margin-bottom:6px;list-style:none;padding-left:2px}
+  .verdict-box{border-radius:10px;border:1.5px solid;padding:12px;margin-bottom:14px}
+  .verdict-label{font-size:.8rem;font-weight:600;margin-bottom:4px}
+  .verdict-val{font-size:1rem;font-weight:800}
+  .suggestions li{font-size:.83rem;color:#374151;margin-bottom:6px;padding-left:16px}
+  .winner-banner{background:#1d4ed8;color:#fff;border-radius:14px;padding:18px;text-align:center;margin-bottom:16px}
+  .winner-banner .wlabel{font-size:.85rem;opacity:.8;margin-bottom:4px}
+  .winner-banner .wval{font-size:1.8rem;font-weight:800}
+  .winner-banner .wsub{font-size:.82rem;opacity:.75;margin-top:4px}
+  .footer{text-align:center;font-size:.72rem;color:#9ca3af;margin-top:6px}
+  .safe{color:#16a34a}.safe-bg{background:#f0fdf4;border-color:#bbf7d0}
+  .mod{color:#ca8a04}.mod-bg{background:#fefce8;border-color:#fde68a}
+  .high{color:#dc2626}.high-bg{background:#fef2f2;border-color:#fecaca}
+  .green{color:#15803d}.yellow{color:#a16207}.red{color:#b91c1c}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🏦 Loan Analyzer</h1>
+  <p class="subtitle">Bangladesh Smart Loan Decision Tool</p>
+
+  <div class="tab-bar">
+    <div class="tab active" id="tab-single" onclick="setMode('single')">Single Loan</div>
+    <div class="tab" id="tab-compare" onclick="setMode('compare')">Compare Loans</div>
+  </div>
+
+  <div id="form-a" class="card">
+    <div class="card-title" id="label-a" style="display:none">🅰️ Loan A</div>
+    <div class="field"><label>Loan Amount (BDT)</label><input type="number" id="a-amount" placeholder="e.g. 500000"/></div>
+    <div class="field"><label>Annual Interest Rate (%)</label><input type="number" id="a-rate" placeholder="e.g. 12"/></div>
+    <div class="field"><label>Loan Tenure (months)</label><input type="number" id="a-tenure" placeholder="e.g. 36"/></div>
+    <div class="field"><label>Processing Fee (%)</label><div class="hint">One-time upfront fee</div><input type="number" id="a-pf" placeholder="e.g. 1.5"/></div>
+    <div class="field"><label>Early Settlement Fee (%)</label><div class="hint">If you repay before tenure ends</div><input type="number" id="a-sf" placeholder="e.g. 2"/></div>
+    <div class="field"><label>Monthly Income (BDT)</label><input type="number" id="a-income" placeholder="e.g. 60000"/></div>
+  </div>
+
+  <div id="form-b" class="card loan-b" style="display:none">
+    <div class="card-title">🅱️ Loan B</div>
+    <div class="field"><label>Loan Amount (BDT)</label><input type="number" id="b-amount" placeholder="e.g. 500000"/></div>
+    <div class="field"><label>Annual Interest Rate (%)</label><input type="number" id="b-rate" placeholder="e.g. 14"/></div>
+    <div class="field"><label>Loan Tenure (months)</label><input type="number" id="b-tenure" placeholder="e.g. 24"/></div>
+    <div class="field"><label>Processing Fee (%)</label><div class="hint">One-time upfront fee</div><input type="number" id="b-pf" placeholder="e.g. 1"/></div>
+    <div class="field"><label>Early Settlement Fee (%)</label><div class="hint">If you repay before tenure ends</div><input type="number" id="b-sf" placeholder="e.g. 1.5"/></div>
+    <div class="field"><label>Monthly Income (BDT)</label><input type="number" id="b-income" placeholder="e.g. 60000"/></div>
+  </div>
+
+  <p class="error" id="err-msg"></p>
+  <button class="btn" onclick="analyze()">Analyze My Loan →</button>
+  <div id="results"></div>
+  <p class="footer">For informational purposes only. Consult your bank for final terms.</p>
+</div>
+
+<script>
+let mode = 'single';
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('tab-single').className = 'tab' + (m==='single'?' active':'');
+  document.getElementById('tab-compare').className = 'tab' + (m==='compare'?' active':'');
+  document.getElementById('form-b').style.display = m==='compare'?'block':'none';
+  document.getElementById('label-a').style.display = m==='compare'?'block':'none';
+  document.getElementById('results').innerHTML = '';
+  document.getElementById('err-msg').textContent = '';
+}
+
+function g(id) { return parseFloat(document.getElementById(id).value); }
+
+function calcLoan(pfx) {
+  const P = g(pfx+'-amount'), r = g(pfx+'-rate')/100/12,
+    n = parseInt(document.getElementById(pfx+'-tenure').value),
+    pf = g(pfx+'-pf')/100, sf = g(pfx+'-sf')/100, inc = g(pfx+'-income');
+  if(!P||isNaN(r)||!n||isNaN(pf)||isNaN(sf)||!inc) return null;
+  const emi = r===0 ? P/n : (P*r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1);
+  const total = emi*n, interest = total-P, procFee = P*pf, earlyFee = P*sf;
+  const ratio = (emi/inc)*100;
+  const risk = ratio<=30?'Safe':ratio<=45?'Moderate Risk':'High Risk';
+  const rc = ratio<=30?'safe':ratio<=45?'mod':'high';
+  const rbg = ratio<=30?'safe-bg':ratio<=45?'mod-bg':'high-bg';
+  const verdict = ratio<=30&&interest/P<0.5?'✅ Good Decision':ratio<=45?'⚠️ Acceptable but Careful':'🚨 Risky – Reconsider';
+  const vc = ratio<=30&&interest/P<0.5?'green':ratio<=45?'yellow':'red';
+  return {P,r,n,pf,sf,inc,emi,total,interest,procFee,earlyFee,ratio,risk,rc,rbg,verdict,vc};
+}
+
+function fmt(n){return '৳'+Math.round(n).toLocaleString('en-IN')}
+function pct(n){return n.toFixed(2)+'%'}
+
+function warnings(c) {
+  const w=[];
+  if(c.interest/c.P>0.6) w.push("⚠️ You'll pay more than 60% extra as interest — that's a heavy burden.");
+  if(c.n>48) w.push("⚠️ Long tenure means more total interest. You're paying for convenience.");
+  if(c.procFee>0) w.push(`💸 Processing fee of ${fmt(c.procFee)} is an upfront cost — factor this into your budget.`);
+  if(c.earlyFee>0) w.push(`🔒 Early settlement fee of ${fmt(c.earlyFee)} means paying off early isn't free.`);
+  if(c.ratio>45) w.push("🚨 EMI exceeds 45% of income — leaves very little for savings or emergencies.");
+  else if(c.ratio>30) w.push("⚡ EMI is between 31–45% of income. Manageable but leaves little buffer.");
+  if(w.length===0) w.push("✅ No major red flags found. This looks like a healthy loan structure.");
+  return w.map(x=>`<li>${x}</li>`).join('');
+}
+
+function suggestions(c) {
+  const t=[];
+  if(c.n>24){const sn=Math.max(12,c.n-12),sr=c.r,sP=c.P;
+    const semi=sr===0?sP/sn:(sP*sr*Math.pow(1+sr,sn))/(Math.pow(1+sr,sn)-1);
+    const saved=c.total-semi*sn;
+    if(saved>0) t.push(`Consider a shorter tenure (e.g. ${sn} months) — you'd save ${fmt(saved)} in interest.`);
+  }
+  if(c.ratio>35) t.push("Try to increase your income or reduce the loan amount before taking this loan.");
+  if(c.procFee>0) t.push("Negotiate the processing fee with the bank — some banks waive or reduce it.");
+  t.push("Build an emergency fund of at least 3× your EMI before taking this loan.");
+  if(c.interest/c.P>0.4) t.push("Shop around — compare rates from at least 3 banks. Even 1–2% less interest saves thousands.");
+  return t.map(x=>`<li>${x}</li>`).join('');
+}
+
+function reportHTML(c, label) {
+  return `
+  <div class="report">
+    ${label?`<div class="report-title">${label}</div>`:''}
+    <div class="section-title">📊 Loan Summary</div>
+    <div class="grid">
+      <div class="stat"><div class="slabel">Monthly EMI</div><div class="sval">${fmt(c.emi)}</div></div>
+      <div class="stat"><div class="slabel">Total Payment</div><div class="sval">${fmt(c.total)}</div></div>
+      <div class="stat"><div class="slabel">Total Interest</div><div class="sval">${fmt(c.interest)}</div></div>
+      <div class="stat"><div class="slabel">Processing Fee</div><div class="sval">${fmt(c.procFee)}</div></div>
+    </div>
+    <div class="section-title">💡 Affordability Check</div>
+    <div class="afford ${c.rbg}">
+      <div class="afford-row"><span>EMI / Income</span><span>${pct(c.ratio)}</span></div>
+      <div class="afford-row"><span>Risk Level</span><span class="${c.rc}">${c.risk}</span></div>
+    </div>
+    <div class="section-title">⚠️ Key Insights</div>
+    <ul class="insights" style="margin-bottom:14px">${warnings(c)}</ul>
+    <div class="section-title">✅ Final Verdict</div>
+    <div class="verdict-box ${c.rbg}" style="margin-bottom:14px">
+      <div class="verdict-val ${c.vc}">${c.verdict}</div>
+    </div>
+    <div class="section-title">🧠 Smart Suggestions</div>
+    <ul class="suggestions">${suggestions(c)}</ul>
+  </div>`;
+}
+
+function analyze() {
+  document.getElementById('err-msg').textContent='';
+  const ca = calcLoan('a');
+  if(!ca){document.getElementById('err-msg').textContent='Please fill in all fields for Loan A.';return;}
+  let html='';
+  if(mode==='compare'){
+    const cb = calcLoan('b');
+    if(!cb){document.getElementById('err-msg').textContent='Please fill in all fields for Loan B.';return;}
+    const winnerA = (ca.total+ca.procFee)<=(cb.total+cb.procFee);
+    const winCost = Math.min(ca.total+ca.procFee, cb.total+cb.procFee);
+    html=`<div class="winner-banner">
+      <div class="wlabel">🏆 Better Option</div>
+      <div class="wval">Loan ${winnerA?'A':'B'}</div>
+      <div class="wsub">Lower total cost: ${fmt(winCost)}</div>
+    </div>
+    ${reportHTML(ca,'🅰️ Loan A Report')}
+    ${reportHTML(cb,'🅱️ Loan B Report')}`;
+  } else {
+    html = reportHTML(ca,'');
+  }
+  document.getElementById('results').innerHTML=html;
+  document.getElementById('results').scrollIntoView({behavior:'smooth'});
+}
+</script>
+</body>
+</html>
